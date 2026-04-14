@@ -263,3 +263,62 @@ MVP is intentionally constrained to:
 3. Prepare design system + wireframes for admin/teacher flows
 4. Setup CI/CD, staging environment, and observability baseline
 5. Build Phase 1 backlog and start Sprint 1
+
+---
+
+## 14) Module 1 Implementation Plan — User Management
+
+### Objective
+Deliver production-ready account lifecycle and access control for **Admin, Teacher, and Parent** personas.
+
+### Step-by-step execution
+
+#### 1. Create User APIs
+- **Register User API**
+  - Input: name, email/phone, password, tenant/school, default role
+  - Validation: unique identifier, password policy, tenant binding
+  - Behavior: create user record, hash password, create audit event
+
+- **Login API**
+  - Input: email/phone + password
+  - Validation: active account + password match
+  - Behavior: issue JWT access token + refresh token, update last-login
+
+- **Assign Role API**
+  - Input: userId + targetRole
+  - Authorization: admin-only action (or delegated role manager permission)
+  - Behavior: update user-role mapping, persist audit trail
+
+#### 2. Implement Authentication
+- **JWT token implementation**
+  - Short-lived access token + rotating refresh token
+  - Include tenantId, userId, and role claims
+  - Add token expiry checks and refresh endpoint
+
+- **Password encryption**
+  - Hash passwords with Argon2/Bcrypt
+  - Never store plain passwords
+  - Enforce reset flow with one-time token
+
+#### 3. Add Role-Based Access Check (RBAC)
+- Create permission matrix for Admin/Teacher/Parent
+- Add middleware/guards on every protected endpoint
+- Deny by default; allow only explicit permissions
+- Log unauthorized access attempts
+
+### Suggested API list (MVP)
+- `POST /api/v1/auth/register`
+- `POST /api/v1/auth/login`
+- `POST /api/v1/auth/refresh`
+- `POST /api/v1/users/{id}/roles`
+- `GET /api/v1/users/me`
+
+### Definition of Done (Module 1)
+- Admin, Teacher, Parent accounts can be created and authenticated
+- Role assignment works with authorization checks
+- Protected APIs enforce RBAC consistently
+- Unit + integration tests pass for auth and role flows
+- Security checks for password hashing and token expiry are verified
+
+### Output
+✅ **Admin, Teacher, Parent accounts ready**
